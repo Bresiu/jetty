@@ -25,7 +25,7 @@ wsServer.on('request', function(request) {
     // all messages from users here.
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-            console.log(message);
+            console.log(message.utf8Data);
             connection.send(message.utf8Data);
         }
     });

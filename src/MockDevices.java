@@ -5,34 +5,48 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 public class MockDevices {
+    private URI uri;
 
-    int i;
+    private ClientUpgradeRequest request = new ClientUpgradeRequest();
+
+    private WebSocketClient client;// = new WebSocketClient();
 
     public MockDevices() {
-        init();
+        client = new WebSocketClient();
+        try {
+            uri = new URI(Constants.URI);
+            client.start();
+        } catch (Exception e) {
+
+        }
+        thread1.run();
+        thread2.run();
     }
 
-    private void init() {
-        for (i = 0; i < Constants.NUMER_OF_DEVICES; i++) {
-            startNewClient(i);
+    Thread thread1 = new Thread() {
+        @Override
+        public void run() {
+            startNewClient(1);
         }
-    }
+    };
+
+    Thread thread2 = new Thread() {
+        @Override
+        public void run() {
+            startNewClient(2);
+        }
+    };
 
     private void startNewClient(int id) {
-        WebSocketClient client = new WebSocketClient();
         JettyClient socket = new JettyClient(id);
         try {
-            client.start();
-            URI uri = new URI(Constants.URI);
-            ClientUpgradeRequest request = new ClientUpgradeRequest();
-
             System.out.println("Connecting to: " + uri);
             client.connect(socket, uri, request);
 
             socket.awaitClose(5, TimeUnit.SECONDS);
         } catch (Throwable t) {
             t.printStackTrace();
-        } finally {
+        } /*finally {
             try {
                 System.out.println("client Stop");
                 client.stop();
@@ -40,6 +54,6 @@ public class MockDevices {
                 System.out.println("exception: " + e);
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 }

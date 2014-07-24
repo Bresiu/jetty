@@ -1,5 +1,4 @@
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -33,13 +32,21 @@ public class JettyClient {
         onConnected(this.session);
 
         // TODO: move this to some thread and send futures async
-        try {
-            Future<Void> fut;
-            fut = session.getRemote().sendStringByFuture("Random int from id: " + id + " " + Util.randomInt());
-            fut.get(2, TimeUnit.SECONDS);
-            session.close(StatusCode.NORMAL, "I'm done");
-        } catch (Throwable t) {
-            t.printStackTrace();
+        while (session!=null) {
+            try {
+                Future<Void> fut;
+                fut = session.getRemote().sendStringByFuture("Random int from id: " + id + " " + Util.randomInt());
+                fut.get(2, TimeUnit.SECONDS);
+                // session.close(StatusCode.NORMAL, "I'm done");
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            try {
+                Thread.sleep(Constants.SLEEP_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
